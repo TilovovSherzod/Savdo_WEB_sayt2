@@ -138,7 +138,7 @@
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "X-CSRFToken": getCookie("csrftoken"),
+                // Removed CSRF token header
             },
             body: JSON.stringify({
                 maxsulot_id: productId,

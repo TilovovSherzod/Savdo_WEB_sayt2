@@ -46,7 +46,7 @@ function addToCart(productId, quantity = 1) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-CSRFToken": getCookie("csrftoken"),
+      // Removed CSRF token header since we're exempting the view
     },
     body: JSON.stringify({
       maxsulot_id: productId,
@@ -57,12 +57,21 @@ function addToCart(productId, quantity = 1) {
     .then((data) => {
       if (data.success) {
         // Savatdagi maxsulotlar sonini yangilash
-        document.getElementById("savat-soni").textContent = data.savat_maxsulotlar_soni
+        const savatSoni = document.getElementById("savat-soni")
+        if (savatSoni) {
+          savatSoni.textContent = data.savat_maxsulotlar_soni
+        }
 
         // Modal xabarini yangilash va ko'rsatish
-        document.getElementById("cartModalMessage").textContent = `"${data.maxsulot_nomi}" savatga qo'shildi!`
-        const bootstrap = window.bootstrap // Ensure bootstrap is accessible
-        new bootstrap.Modal(document.getElementById("addToCartModal")).show()
+        const cartModalMessage = document.getElementById("cartModalMessage")
+        if (cartModalMessage) {
+          cartModalMessage.textContent = `"${data.maxsulot_nomi}" savatga qo'shildi!`
+          const bootstrap = window.bootstrap // Ensure bootstrap is accessible
+          const modal = document.getElementById("addToCartModal")
+          if (modal && bootstrap && bootstrap.Modal) {
+            new bootstrap.Modal(modal).show()
+          }
+        }
       }
     })
     .catch((error) => console.error("Error:", error))
@@ -74,7 +83,7 @@ function updateCart(productId, quantity) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-CSRFToken": getCookie("csrftoken"),
+      // Removed CSRF token header since we're exempting the view
     },
     body: JSON.stringify({
       maxsulot_id: productId,
@@ -85,11 +94,18 @@ function updateCart(productId, quantity) {
     .then((data) => {
       if (data.success) {
         // Savatdagi maxsulotlar sonini yangilash
-        document.getElementById("savat-soni").textContent = data.maxsulotlar_soni
+        const savatSoni = document.getElementById("savat-soni")
+        if (savatSoni) {
+          savatSoni.textContent = data.maxsulotlar_soni
+        }
 
         // Jami narxni yangilash
-        document.getElementById("cart-subtotal").textContent = data.jami_narx + " so'm"
-        document.getElementById("cart-total").textContent = data.jami_narx + " so'm"
+        const cartSubtotal = document.getElementById("cart-subtotal")
+        const cartTotal = document.getElementById("cart-total")
+        if (cartSubtotal && cartTotal) {
+          cartSubtotal.textContent = data.jami_narx + " so'm"
+          cartTotal.textContent = data.jami_narx + " so'm"
+        }
       }
     })
     .catch((error) => console.error("Error:", error))
@@ -101,12 +117,35 @@ function clearCart() {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-CSRFToken": getCookie("csrftoken"),
+      // Removed CSRF token header since we're exempting the view
     },
   })
     .then((response) => response.json())
     .then((data) => {
       if (data.success) {
+        location.reload()
+      }
+    })
+    .catch((error) => console.error("Error:", error))
+}
+
+// Cart item quantity update function for the cart page
+function updateCartItemQuantity(productId, quantity) {
+  fetch("/savat-yangilash/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      // Removed CSRF token header since we're exempting the view
+    },
+    body: JSON.stringify({
+      maxsulot_id: productId,
+      miqdor: quantity,
+    }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        // Sahifani yangilash
         location.reload()
       }
     })

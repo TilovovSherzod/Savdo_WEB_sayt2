@@ -7,6 +7,7 @@ from django.http import JsonResponse, HttpResponseForbidden
 from django.db.models import Q
 from django.contrib import messages
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
 import json
 import uuid
@@ -70,6 +71,7 @@ def savat_olish(request):
 
     return savat
 
+@csrf_exempt
 @require_POST
 def savatga_qoshish(request):
     """Maxsulotni savatga qo'shish"""
@@ -114,6 +116,7 @@ def savat(request):
         'savat_maxsulotlar': savat_maxsulotlar,
     })
 
+@csrf_exempt
 @require_POST
 def savat_yangilash(request):
     """Savatdagi maxsulot miqdorini yangilash"""
@@ -142,6 +145,7 @@ def savat_yangilash(request):
     except SavatMaxsulot.DoesNotExist:
         return JsonResponse({'success': False, 'error': 'Maxsulot topilmadi'})
 
+@csrf_exempt
 @require_POST
 def savat_tozalash(request):
     """Savatni to'liq tozalash"""
